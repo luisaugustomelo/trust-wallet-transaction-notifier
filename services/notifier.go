@@ -40,7 +40,7 @@ func NewEthereumRPC(url string, client interfaces.HTTPClient, storage *storages.
 }
 
 func (rpc *EthereumRPC) StartBlockWatcher() {
-	ticker := time.NewTicker(5 * time.Second) // Verifica novos blocos a cada 30 segundos
+	ticker := time.NewTicker(5 * time.Second) // Checks for new blocks every 1 second
 	for {
 		select {
 		case <-ticker.C:
@@ -53,7 +53,7 @@ func (rpc *EthereumRPC) StartBlockWatcher() {
 						continue
 					}
 
-					// Atualiza as transações e assinaturas usando métodos específicos do armazenamento
+					// Updates transactions and signatures using storage-specific methods
 					rpc.Storage.Transactions.Save(address, transactions)
 					rpc.Storage.Subscriptions.Update(address, block)
 				}
@@ -74,7 +74,7 @@ func (rpc *EthereumRPC) GetCurrentBlock() int {
 	}
 	defer resp.Body.Close() // close body to make resources free
 
-	// Decodificar a resposta JSON
+	// Decode the JSON response
 	var result struct {
 		JSONRPC string `json:"jsonrpc"`
 		ID      int    `json:"id"`
@@ -137,7 +137,7 @@ func (rpc *EthereumRPC) GetTransactionsFromBlock(blockNumber int64, address stri
 		return nil, fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	// Filtrar transações para incluir apenas aquelas que envolvem o endereço especificado
+	// Filter transactions to only include those involving the specified address
 	var filteredTransactions []entities.Transaction
 	for _, tx := range rpcResult.Result.Transactions {
 		if strings.ToLower(tx.From) == strings.ToLower(address) || strings.ToLower(tx.To) == strings.ToLower(address) {
