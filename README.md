@@ -4,6 +4,38 @@
 
 This application is designed to monitor transactions on specific blockchain addresses using Ethereum's JSON-RPC interface. It checks for new transactions at subscribed addresses and updates the subscribers with the latest transaction data.
 
+## Commands
+
+### Clone the Repository
+
+First, you'll need to clone the Trust Wallet Transaction Notifier repository from GitHub. Open your terminal and run the following commands:
+
+```
+git clone https://github.com/luisaugustomelo/trust-wallet-transaction-notifier.git
+cd trust-wallet-transaction-notifier
+```
+
+This will download the repository and change your current directory to the repository's directory.
+
+### Install Dependencies
+
+If the project has any dependencies, you can install them using Go's package manager. Run the following command in the project directory:
+
+```
+go mod tidy
+```
+
+This command cleans up the dependencies, making sure all necessary packages are downloaded and installed.
+
+### Run the Application
+
+To start the application, execute the following command in the terminal within the project directory:
+```
+go run main.go
+```
+
+This command compiles and runs the main.go file, starting your server. By default, the server should be accessible through http://localhost:8080, unless specified otherwise in the code.
+
 ## Architecture
 
 ### Components
