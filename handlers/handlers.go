@@ -14,7 +14,10 @@ func HandleCurrentBlock(w http.ResponseWriter, r *http.Request, rpc interfaces.P
 		return
 	}
 	block := rpc.GetCurrentBlock()
-	fmt.Fprintf(w, "Current Block: %d", block)
+	_, err := fmt.Fprintf(w, "Current Block: %d", block)
+	if err != nil {
+		return
+	}
 }
 
 func HandleSubscribe(w http.ResponseWriter, r *http.Request, rpc interfaces.Parser) {
@@ -38,30 +41,65 @@ func HandleSubscribe(w http.ResponseWriter, r *http.Request, rpc interfaces.Pars
 	}
 
 	if rpc.Subscribe(data.Address) {
-		fmt.Fprintf(w, "Subscribed to: %s", data.Address)
+		_, err := fmt.Fprintf(w, "Subscribed to: %s", data.Address)
+		if err != nil {
+			return
+		}
 	} else {
-		fmt.Fprintf(w, "Already subscribed to: %s", data.Address)
+		_, err := fmt.Fprintf(w, "Already subscribed to: %s", data.Address)
+		if err != nil {
+			return
+		}
 	}
 }
 
 func HandleTransactions(w http.ResponseWriter, r *http.Request, rpc interfaces.Parser) {
 	address := r.URL.Query().Get("address")
 	transactions, err := rpc.GetTransactions(address)
+	w.Header().Set("Content-Type", "application/json")
+
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error getting transactions: %v", err), http.StatusBadRequest)
+		// Use json.Marshal to create a JSON-formatted error response
+		errorResponse, _ := json.Marshal(map[string]string{
+			"error": "Error getting transactions: " + err.Error(),
+		})
+		w.WriteHeader(http.StatusBadRequest)
+		_, err := w.Write(errorResponse)
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	if len(transactions) == 0 {
-		http.Error(w, fmt.Sprintf("\"There are no new transactions at this time, please wait!\""), http.StatusFound)
+		// Respond with a predefined message when no transactions are found
+		noTransactionsResponse, _ := json.Marshal(map[string]string{
+			"message": "There are no new transactions at this time, please wait!",
+		})
+		w.WriteHeader(http.StatusNotFound) // StatusNotFound (404) might be more appropriate here
+		_, err := w.Write(noTransactionsResponse)
+		if err != nil {
+			return
+		}
 		return
 	}
 
+	// If transactions are found, marshal them into JSON and send the response
 	js, err := json.Marshal(transactions)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse, _ := json.Marshal(map[string]string{
+			"error": "Failed to serialize transactions: " + err.Error(),
+		})
+		w.WriteHeader(http.StatusInternalServerError)
+		_, err := w.Write(errorResponse)
+		if err != nil {
+			return
+		}
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+
+	_, err = w.Write(js)
+	if err != nil {
+		return
+	}
 }
