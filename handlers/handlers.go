@@ -53,7 +53,7 @@ func HandleTransactions(w http.ResponseWriter, r *http.Request, rpc interfaces.P
 	}
 
 	if len(transactions) == 0 {
-		http.Error(w, fmt.Sprintf("\"There are no new transactions at this time, please wait\""), http.StatusNoContent)
+		http.Error(w, fmt.Sprintf("\"There are no new transactions at this time, please wait!\""), http.StatusFound)
 		return
 	}
 
