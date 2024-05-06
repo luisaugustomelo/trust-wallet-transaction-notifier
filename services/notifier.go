@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -49,7 +49,7 @@ func (rpc *EthereumRPC) StartBlockWatcher() {
 				for block := lastCheckedBlock + 1; block <= int64(currentBlock); block++ {
 					transactions, err := rpc.GetTransactionsFromBlock(block, address)
 					if err != nil {
-						log.Printf("Error fetching transactions for block %d and address %s: %v", block, address, err)
+						fmt.Printf("Error fetching transactions for block %d and address %s: %v", block, address, err)
 						continue
 					}
 
@@ -72,7 +72,13 @@ func (rpc *EthereumRPC) GetCurrentBlock() int {
 		fmt.Println("Error making RPC request:", err)
 		return -1
 	}
-	defer resp.Body.Close() // close body to make resources free
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(resp.Body) // close body to make resources free
 
 	// Decode the JSON response
 	var result struct {
@@ -84,6 +90,7 @@ func (rpc *EthereumRPC) GetCurrentBlock() int {
 			Message string `json:"message"`
 		} `json:"error"`
 	}
+
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		fmt.Println("Error decoding response:", err)
@@ -96,7 +103,7 @@ func (rpc *EthereumRPC) GetCurrentBlock() int {
 		return -1
 	}
 
-	// hexa to decimal
+	// Hexadecimal to decimal
 	blockNumber, err := strconv.ParseInt(result.Result, 0, 64)
 	if err != nil {
 		fmt.Println("Error parsing block number:", err)
