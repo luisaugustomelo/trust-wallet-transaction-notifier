@@ -20,6 +20,10 @@ func (m *MockHTTPClient) GetCurrentBlock() int {
 	return args.Int(0)
 }
 
+func (m *MockHTTPClient) CleanUpTransactions(address string) {
+	m.Called(address)
+}
+
 func (m *MockHTTPClient) Subscribe(address string) bool {
 	args := m.Called(address)
 	return args.Bool(0)

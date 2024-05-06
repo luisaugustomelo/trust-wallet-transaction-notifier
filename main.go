@@ -11,7 +11,7 @@ import (
 
 func main() {
 	client := &http.Client{}
-	storage := storages.NewMemoryStorage(&storages.SubscriptionStorage{}, &storages.TransactionStorage{})
+	storage := storages.NewMemoryStorage(storages.NewSubscriptionStorage(), storages.NewTransactionStorage())
 	rpc := services.NewEthereumRPC("https://cloudflare-eth.com", client, storage)
 
 	router := http.NewServeMux()

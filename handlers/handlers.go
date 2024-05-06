@@ -58,6 +58,11 @@ func HandleTransactions(w http.ResponseWriter, r *http.Request, rpc interfaces.P
 	transactions, err := rpc.GetTransactions(address)
 	w.Header().Set("Content-Type", "application/json")
 
+	if len(transactions) > 0 {
+		// Clean up transactions after sending
+		rpc.CleanUpTransactions(address)
+	}
+
 	if err != nil {
 		// Use json.Marshal to create a JSON-formatted error response
 		errorResponse, _ := json.Marshal(map[string]string{

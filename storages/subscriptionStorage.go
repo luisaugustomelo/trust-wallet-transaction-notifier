@@ -1,7 +1,6 @@
 package storages
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/luisaugustmelo/trust-wallet-transaction-notifier/interfaces"
@@ -16,28 +15,28 @@ type SubscriptionStorage struct {
 // Ensures that SubscriptionStorage implements Storage
 var _ interfaces.Storage = (*SubscriptionStorage)(nil)
 
+func NewSubscriptionStorage() *SubscriptionStorage {
+	return &SubscriptionStorage{
+		subscriptions: make(map[string]int64),
+	}
+}
+
 // Save SubscriptionStorage methods
 func (s *SubscriptionStorage) Save(key string, value interface{}) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	if s.subscriptions == nil {
-		s.subscriptions = make(map[string]int64)
-	}
 
 	if val, ok := value.(int64); ok {
 		s.subscriptions[key] = val
 	}
 }
 
-func (s *SubscriptionStorage) Delete(key string) error {
+func (s *SubscriptionStorage) Delete(key string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if _, exists := s.subscriptions[key]; exists {
 		delete(s.subscriptions, key)
-		return nil
 	}
-	return fmt.Errorf("no subscription found for key %s", key)
 }
 
 func (s *SubscriptionStorage) Find(key string) (interface{}, bool) {

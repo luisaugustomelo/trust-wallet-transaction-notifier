@@ -40,7 +40,7 @@ func NewEthereumRPC(url string, client interfaces.HTTPClient, storage *storages.
 }
 
 func (rpc *EthereumRPC) StartBlockWatcher() {
-	ticker := time.NewTicker(5 * time.Second) // Checks for new blocks every 1 second
+	ticker := time.NewTicker(1 * time.Second) // Checks for new blocks every 1 second
 	for {
 		select {
 		case <-ticker.C:
@@ -53,9 +53,12 @@ func (rpc *EthereumRPC) StartBlockWatcher() {
 						continue
 					}
 
-					// Updates transactions and signatures using storage-specific methods
-					rpc.Storage.Transactions.Save(address, transactions)
-					rpc.Storage.Subscriptions.Update(address, block)
+					if transactions != nil {
+						// Updates transactions and signatures using storage-specific methods
+						rpc.Storage.Transactions.Save(address, transactions)
+						rpc.Storage.Subscriptions.Update(address, block)
+					}
+
 				}
 			}
 		}
@@ -111,6 +114,10 @@ func (rpc *EthereumRPC) GetCurrentBlock() int {
 	}
 
 	return int(blockNumber)
+}
+
+func (rpc *EthereumRPC) CleanUpTransactions(address string) {
+	rpc.Storage.Transactions.Delete(address)
 }
 
 func (rpc *EthereumRPC) Subscribe(address string) bool {

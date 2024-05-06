@@ -1,7 +1,6 @@
 package storages
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/luisaugustmelo/trust-wallet-transaction-notifier/entities"
@@ -19,29 +18,28 @@ var _ interfaces.Storage = (*TransactionStorage)(nil)
 
 // TransactionStorage methods
 
+func NewTransactionStorage() *TransactionStorage {
+	return &TransactionStorage{
+		transactions: make(map[string][]entities.Transaction),
+	}
+}
+
 func (t *TransactionStorage) Save(key string, value interface{}) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
-	// Check and initialize the map if it has not been initialized yet
-	if t.transactions == nil {
-		t.transactions = make(map[string][]entities.Transaction)
-	}
-
 	// Saves the value to the map if it is of the correct type ([]entities.Transaction)
-	if val, ok := value.([]entities.Transaction); ok {
-		t.transactions[key] = val
+	if newTransactions, ok := value.([]entities.Transaction); ok {
+		t.transactions[key] = append(t.transactions[key], newTransactions...)
 	}
 }
 
-func (t *TransactionStorage) Delete(key string) error {
+func (t *TransactionStorage) Delete(key string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if _, exists := t.transactions[key]; exists {
 		delete(t.transactions, key)
-		return nil
 	}
-	return fmt.Errorf("no transactions found for key %s", key)
 }
 
 func (t *TransactionStorage) Find(key string) (interface{}, bool) {
