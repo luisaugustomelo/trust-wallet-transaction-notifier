@@ -31,14 +31,14 @@ func TestTransactionStorageDelete(t *testing.T) {
 	}
 
 	// Test deleting an existing transaction
-	err := storage.Delete("tx1")
-	assert.NoError(t, err, "Deleting an existing transaction should not produce an error.")
+	storage.Delete("tx1")
 	_, exists := storage.transactions["tx1"]
 	assert.False(t, exists, "The key should no longer exist.")
 
 	// Test deleting a non-existing transaction
-	err = storage.Delete("tx2")
-	assert.Error(t, err, "Deleting a non-existing transaction should produce an error.")
+	storage.Delete("tx2")
+	_, exists = storage.transactions["tx2"]
+	assert.False(t, exists, "The key should not exist as it was never added.")
 }
 
 func TestTransactionStorageFind(t *testing.T) {

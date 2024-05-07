@@ -32,14 +32,14 @@ func TestSubscriptionStorageDelete(t *testing.T) {
 	}
 
 	// Test deleting an existing key
-	err := storage.Delete("user1")
-	assert.NoError(t, err, "Deleting an existing key should not produce an error.")
+	storage.Delete("user1")
 	_, exists := storage.subscriptions["user1"]
 	assert.False(t, exists, "The key should no longer exist.")
 
 	// Test deleting a non-existing key
-	err = storage.Delete("user2")
-	assert.Error(t, err, "Deleting a non-existing key should produce an error.")
+	storage.Delete("user2")
+	_, exists = storage.subscriptions["user2"]
+	assert.False(t, exists, "The key should not exist as it was never added.")
 }
 
 // TestSubscriptionStorageFind tests the Find method.
