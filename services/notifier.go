@@ -79,7 +79,7 @@ func (rpc *EthereumRPC) GetCurrentBlock() int {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-
+			fmt.Println("Error body read closer:", err)
 		}
 	}(resp.Body) // close body to make resources free
 
@@ -139,7 +139,12 @@ func (rpc *EthereumRPC) GetTransactionsFromBlock(blockNumber int64, address stri
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println("Error body read closer:", err)
+		}
+	}(resp.Body)
 
 	var rpcResult struct {
 		Result struct {
