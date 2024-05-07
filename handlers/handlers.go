@@ -63,25 +63,12 @@ func HandleTransactions(w http.ResponseWriter, r *http.Request, rpc interfaces.P
 		rpc.CleanUpTransactions(address)
 	}
 
-	if err != nil {
-		// Use json.Marshal to create a JSON-formatted error response
-		errorResponse, _ := json.Marshal(map[string]string{
-			"error": "Error getting transactions: " + err.Error(),
-		})
-		w.WriteHeader(http.StatusBadRequest)
-		_, err := w.Write(errorResponse)
-		if err != nil {
-			return
-		}
-		return
-	}
-
 	if len(transactions) == 0 {
 		// Respond with a predefined message when no transactions are found
 		noTransactionsResponse, _ := json.Marshal(map[string]string{
 			"message": "There are no new transactions at this time, please wait!",
 		})
-		w.WriteHeader(http.StatusNotFound) // StatusNotFound (404) might be more appropriate here
+		w.WriteHeader(http.StatusFound) // StatusNotFound (404) might be more appropriate here
 		_, err := w.Write(noTransactionsResponse)
 		if err != nil {
 			return
@@ -100,6 +87,7 @@ func HandleTransactions(w http.ResponseWriter, r *http.Request, rpc interfaces.P
 		if err != nil {
 			return
 		}
+
 		return
 	}
 
